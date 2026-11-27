@@ -4,17 +4,17 @@ import DateArt from "./DateArt";
 import Picker, { MultiPicker } from "./Picker";
 import { useCart, money } from "./CartProvider";
 import { KINDS, SHAPES, FILLS, COATS, HAMPERS, READY, SHAPE_PHOTOS, by, pieceCost, describe, describeMulti, avgCost, toggle, noNone, names } from "../lib/menu";
-import { priceItem } from "../lib/pricing";
+import { priceItem, piecesOptions, FLOWER_PIECES, PIECES } from "../lib/pricing";
 import { usePrices } from "./PricesProvider";
-
-const SIZES = [6, 12, 24];
 
 function Ready({ r }) {
   const { add } = useCart();
   const P = usePrices();
   const [kind, setKind] = useState("medjool");
+  const flower = r.cfg.shape === "flower";
+  const [pcs, setPcs] = useState(flower ? 2 : 6);
   const cfg = { ...r.cfg, kind, choc: false };
-  const spec = { type: "ready", id: r.id, kind };
+  const spec = { type: "ready", id: r.id, kind, pieces: pcs };
   const p = priceItem(spec, P);
   return (
     <article className="card">
@@ -24,8 +24,13 @@ function Ready({ r }) {
       <select value={kind} onChange={(e) => setKind(e.target.value)} aria-label="Date kind">
         {KINDS.map((k) => <option key={k.id} value={k.id}>{k.name}</option>)}
       </select>
-      <p className="price">{money(p.unit)} <span>box of 6</span></p>
-      <button className="btn" onClick={() => add({ key: `${r.id}-${kind}`, spec, ...p, qty: 1, art: cfg, img: r.img })}>Add to cart</button>
+      {flower && (
+        <select value={pcs} onChange={(e) => setPcs(Number(e.target.value))} aria-label="Pieces">
+          {FLOWER_PIECES.map((n) => <option key={n} value={n}>{n} pieces</option>)}
+        </select>
+      )}
+      <p className="price">{money(p.unit)} <span>{flower ? `${pcs} pieces` : "box of 6"}</span></p>
+      <button className="btn" onClick={() => add({ key: `${r.id}-${kind}-${pcs}`, spec, ...p, qty: 1, art: cfg, img: r.img })}>Add to cart</button>
     </article>
   );
 }
@@ -45,7 +50,9 @@ export function Builder() {
   const [pieces, setPieces] = useState(12);
   const noChoc = !choc && coats.includes("none");
   const sel = { kinds, shapes, fills, coats, choc };
-  const spec = { type: "custom", ...sel, pieces };
+  const opts = piecesOptions({ shapes, choc });
+  const pcs = opts.includes(pieces) ? pieces : opts[1]; // flower-only dates switch to 2, 4, 6, 8
+  const spec = { type: "custom", ...sel, pieces: pcs };
   const p = priceItem(spec, P);
   const unit = p.unit;
   const n = Math.min(6, Math.max(choc ? 1 : kinds.length, shapes.length, fills.length, coats.length));
@@ -57,7 +64,7 @@ export function Builder() {
       <div className="preview">
         <div className="stage">{arts.map((a, i) => <DateArt key={i} {...a} size={n === 1 ? 220 : n <= 3 ? 110 : 86} />)}</div>
         <p className="small">{describeMulti(sel)}</p>
-        <p className="price big">{money(unit)} <span>{pieces} pieces{multi ? ", assorted evenly" : ""}</span></p>
+        <p className="price big">{money(unit)} <span>{pcs} pieces{multi ? ", assorted evenly" : ""}</span></p>
         {photos.length > 0 && (
           <div className="shots">
             {photos.map((x) => <figure className="shot" key={x}><img src={SHAPE_PHOTOS[x].img} alt={SHAPE_PHOTOS[x].note} loading="lazy" /><figcaption>{SHAPE_PHOTOS[x].note}</figcaption></figure>)}
@@ -73,7 +80,8 @@ export function Builder() {
         <MultiPicker label="Dry fruit filling" options={FILLS} values={fills} onToggle={(id) => setFills((p) => toggle(p, id))} />
         <MultiPicker label="Chocolate coating" options={choc ? COATS.slice(1) : COATS} values={coats} onToggle={(id) => setCoats((p) => toggle(p, id, "none", "dark"))} isDisabled={(id) => noChoc && id !== "none"} />
         {noChoc && <p className="small">Chocolate options are switched off while "No chocolate" is selected. Tap it again to choose a chocolate.</p>}
-        <Picker label="Pieces" options={SIZES.map((x) => ({ id: x, name: `${x} pieces` }))} value={pieces} onChange={setPieces} />
+        <Picker label="Pieces" options={opts.map((x) => ({ id: x, name: `${x} pieces` }))} value={pcs} onChange={setPieces} />
+        {opts !== PIECES && <p className="small">Flower dates have a set price: {FLOWER_PIECES.map((n) => `${n} for ${money(P.flower[n])}`).join(", ")}. It is the same whatever the date kind, filling or coating.</p>}
       </div>
     </div>
   );

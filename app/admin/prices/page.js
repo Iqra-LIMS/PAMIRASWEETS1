@@ -38,6 +38,8 @@ export default async function Prices({ searchParams }) {
   const msg = searchParams?.msg ? String(searchParams.msg) : "";
   const err = searchParams?.err ? String(searchParams.err) : "";
   const samples = [
+    ["Flower dates, 2 pieces", { type: "custom", kinds: ["medjool"], shapes: ["flower"], fills: ["almond"], coats: ["dark"], choc: false, pieces: 2 }],
+    ["Flower dates, 8 pieces", { type: "custom", kinds: ["medjool"], shapes: ["flower"], fills: ["almond"], coats: ["dark"], choc: false, pieces: 8 }],
     ["Pistachio Heart, Medjool, box of 6", { type: "ready", id: "r2", kind: "medjool" }],
     ["Almond & Orange Classic, Ajwa, box of 6", { type: "ready", id: "r1", kind: "ajwa" }],
     ["Custom: 12 Medjool hearts, dark chocolate", { type: "custom", kinds: ["medjool"], shapes: ["heart"], fills: ["pistachio"], coats: ["dark"], choc: false, pieces: 12 }],
