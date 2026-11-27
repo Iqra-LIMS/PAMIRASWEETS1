@@ -141,7 +141,7 @@ export default function CartDrawer() {
                   <textarea rows="2" maxLength="300" value={card} onChange={(e) => setCard(e.target.value)} placeholder="With love, from..." />
                 </label>
                 <p className="total"><span>Subtotal</span><b>{money(subtotal)}</b></p>
-                {checked && <p className="verified">✓ Prices checked with our server</p>}
+                {checked && <p className="verified">✓</p>}
                 <button className="btn gold" onClick={() => setStep("details")}>Checkout</button>
                 <button className="link" onClick={clear}>Clear cart</button>
               </div>
@@ -179,7 +179,7 @@ export default function CartDrawer() {
               <p><span>Subtotal</span><span>{money(subtotal)}</span></p>
               <p><span>Delivery{f.city ? ` to ${cityStr || "your city"}` : ""}</span><span>{fee === null ? "Choose a city" : fee === 0 ? "Free" : money(fee)}</span></p>
               <p className="total"><span>Total to pay on delivery</span><b>{money(grand)}</b></p>
-              {checked && <p className="verified">✓ Prices checked with our server</p>}
+              {checked && <p className="verified">✓</p>}
               {eta && <p className="eta">Estimated delivery: <b>{eta.range}</b> ({eta.days}), once we confirm your order.</p>}
               {P.delivery.freeOver > 0 && <p className="small">Free delivery on orders of {money(P.delivery.freeOver)} or more.</p>}
             </div>
